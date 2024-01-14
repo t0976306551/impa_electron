@@ -1,6 +1,8 @@
 import { app, BrowserWindow, shell, ipcMain } from 'electron'
 import { release } from 'node:os'
 import { join } from 'node:path'
+import * as path from 'path';
+import sqlite3 from 'sqlite3';
 
 // The built directory structure
 //
@@ -35,6 +37,7 @@ if (!app.requestSingleInstanceLock()) {
 // process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
 
 let win: BrowserWindow | null = null
+
 // Here, you can also use other preload
 const preload = join(__dirname, '../preload/index.js')
 const url = process.env.VITE_DEV_SERVER_URL
@@ -118,3 +121,38 @@ ipcMain.handle('open-win', (_, arg) => {
     childWindow.loadFile(indexHtml, { hash: arg })
   }
 })
+
+const dbPath = path.join('C:\\SQLite', 'impa.db'); // Adjust the path to your SQLite database file
+
+const db = new sqlite3.Database(dbPath);
+
+// Example query
+db.serialize(() => {
+  db.each('SELECT * FROM your_table', (err, row) => {
+    console.log(row);
+  });
+});
+
+
+ipcMain.handle('query-database', async (event, query) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (db) {
+        const rows = await new Promise((resolve, reject) => {
+          db.all(query, (err, rows) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(rows);
+            }
+          });
+        });
+        resolve(rows);
+      } else {
+        throw new Error('Database not initialized.');
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });
+});

@@ -3,45 +3,20 @@ import { createRouter, createWebHistory } from 'vue-router'
 const routes = [
   {
     path:'/',
+    redirect: '/1', // 將首頁導向到 /1
     name:'main',
-    component: () => import('../view/share/LayoutView.vue'),
+    component: () => import('@/view/share/LayoutView.vue'),
     children: [
       {
-          path: "/",
+          path: "/:id",
           name: "Home",
-          component: () => import('../view/Hellow.vue'),
+          component: () => import('@/view/Home.vue'),
           meta: {
               title: "首頁",
               requiresAuth: true,
           },
       },
-      {
-        path: '/hellow',
-        name: 'hellow',
-        component: () => import('../components/HelloWorld.vue'),
-        meta: {
-            title: '測試',
-            requiresAuth: true,
-        },
-      }
-      // {
-      //     path: "/camera-error-record",
-      //     name: "camera-error-record",
-      //     component: () => import('@/views/CameraErrorRecord.vue'),
-      //     meta: {
-      //         title: "故障紀錄",
-      //         requiresAuth: true,
-      //     },
-      // },
-      // {
-      //     path: "/ai-camera-record",
-      //     name: "ai-camera-record",
-      //     component: () => import('@/views/AICameraRecord.vue'),
-      //     meta: {
-      //         title: "AI偵測紀錄",
-      //         requiresAuth: true,
-      //     },
-      // },
+  
     ],
   }
 ]

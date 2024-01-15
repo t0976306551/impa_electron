@@ -127,11 +127,11 @@ const dbPath = path.join('C:\\SQLite', 'impa.db'); // Adjust the path to your SQ
 const db = new sqlite3.Database(dbPath);
 
 // Example query
-db.serialize(() => {
-  db.each('SELECT * FROM your_table', (err, row) => {
-    console.log(row);
-  });
-});
+// db.serialize(() => {
+//   db.each('SELECT * FROM your_table', (err, row) => {
+//     console.log(row);
+//   });
+// });
 
 
 ipcMain.handle('query-database', async (event, query) => {

@@ -3,41 +3,59 @@
     <v-row v-for="(item, index) in itemList" :key="index" class="pa-3">
       <ImpaListCard :item="item" :index="index"></ImpaListCard
     ></v-row>
+
+    {{ currentId }}
   </v-container>
 </template>
 <script setup lang="ts">
-import { ref, onMounted, onBeforeMount } from "vue";
+import { ref, onMounted, onBeforeMount, watch } from "vue";
+import { useRoute } from "vue-router";
 import type { Ref } from "vue";
-import type { Item } from "../model/item.interface";
-import ImpaListCard from "../components/ImpaListCard.vue";
+import type { Item } from "@/model/item.interface";
+import ImpaListCard from "@/components/ImpaListCard.vue";
 import { ipcRenderer } from "electron";
+const route = useRoute();
+const currentId = ref(route.params.id);
 const itemList: Ref<Item[]> = ref([]);
 
 onBeforeMount(async (): Promise<void> => {
   await queryDatabase();
 });
 
+watch(
+  () => route.params.id,
+  (newId) => {
+    // 在這裡更新 currentId 的值
+    currentId.value = newId;
+  }
+);
+
 const queryDatabase = async (): Promise<void> => {
   try {
+    console.log("id", currentId);
+
     // Send IPC message to query the database
     const results = await ipcRenderer.invoke(
       "query-database",
-      "SELECT * FROM data"
+      "SELECT * FROM datas"
     );
-    results.forEach((itemValue: any) => {
-      let data: Item = {
-        id: itemValue.id,
-        code: itemValue.code,
-        image: itemValue.image,
-        chineseName: itemValue.chinese_name,
-        englishName: itemValue.english_name,
-        type: itemValue.type,
-        uom: itemValue.uom,
-        content: itemValue.content,
-      };
-
-      itemList.value.push(data);
-    });
+    if (results.length > 0) {
+      results.forEach((itemValue: any) => {
+        let data: Item = {
+          id: itemValue.id,
+          code: itemValue.code,
+          image: itemValue.image,
+          chineseName: itemValue.chinese_name,
+          englishName: itemValue.english_name,
+          typeId: itemValue.type,
+          uom: itemValue.uom,
+          mtmlUom: itemValue.mtmlUom,
+          content: itemValue.content,
+          storeStatus: itemValue.storeStatus,
+        };
+        itemList.value.push(data);
+      });
+    }
   } catch (error) {
     console.error("Database query error:", error);
   }

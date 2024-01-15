@@ -1,30 +1,6 @@
 <template>
   <v-sheet>
-    <v-navigation-drawer
-      v-model="drawer"
-      permanent
-      border="1"
-      color="white"
-      width="180"
-      :elevation="2"
-    >
-      <v-list density="compact" nav class="pa-0">
-        <template v-for="(item, index) in navItems">
-          <v-list-item
-            v-if="!item.children"
-            :to="item.url"
-            link
-            :key="'nav-' + index"
-            :title="item.title"
-            :active="currentUrl === item.url"
-            active-class="active-nav-item"
-            class="mt-6 ml-2 pr-2 rounded-s-pill nav-item"
-          >
-          </v-list-item>
-        </template>
-      </v-list>
-    </v-navigation-drawer>
-    <v-app-bar flat color="white" :elevation="2">
+    <v-app-bar color="white" :elevation="2">
       <v-toolbar-title>
         <div class="d-flex align-center">
           <span class="text-h5"> IMPA System </span>
@@ -57,52 +33,75 @@
         > -->
       </template>
     </v-app-bar>
+    <v-navigation-drawer
+      v-model="drawer"
+      permanent
+      border="1"
+      color="white"
+      width="320"
+      :elevation="2"
+    >
+      <v-list density="compact" nav class="pa-0">
+        <template v-for="(item, index) in navItems" :key="'nav-' + index">
+          <v-list-item
+            :to="item.url"
+            link
+            :title="item.title"
+            :active="currentUrl === item.url"
+            active-class="active-nav-item"
+            class="mt-6 ml-2 pr-2 rounded-s-pill nav-item"
+          >
+          </v-list-item>
+        </template>
+      </v-list>
+    </v-navigation-drawer>
   </v-sheet>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, onBeforeMount } from "vue";
 import type { Ref } from "vue";
 import { useRoute } from "vue-router";
 import ConditionSearchDialog from "../../components/ConditionSearchDialog.vue";
+import type { Type } from "@/model/type.interface";
+import { getTypeDatas } from "@/api/type";
 interface NavItem {
   title: string;
   url: string;
-  children?: NavItem[];
 }
+
+// const typeDatas: Ref<Type[]> = ref([]);
 
 const drawer = ref();
 const route = useRoute();
 const title = computed(() => route.meta.title);
 const currentUrl = computed(() => route.path);
 const conditionSearchStatus = ref(false);
-const navItems: NavItem[] = [
-  {
-    title: "首頁",
-    url: "/",
-  },
-  {
-    title: "伺服器",
-    url: "/hellow",
-  },
-  {
-    title: "監視器畫面與紀錄",
-    url: "/",
-  },
-  {
-    title: "監視器調閱",
-    url: "/",
-  },
-  {
-    title: "系統設定",
-    url: "/",
-  },
-  {
-    title: "NTP紀錄",
-    url: "ntp-client",
-  },
-];
+
+const navItems: Ref<NavItem[]> = ref([]);
 const handleDrawerClick = () => {
   drawer.value = !drawer.value;
 };
+
+const getTypeData = async () => {
+  await getTypeDatas()
+    .then((datas) => {
+      datas.forEach((itemValue: Type) => {
+        let data: NavItem = {
+          title: itemValue.name,
+          url: "/" + itemValue.id,
+        };
+        navItems.value.push(data);
+      });
+
+      console.log(navItems.value);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+};
+
+onBeforeMount(async (): Promise<void> => {
+  await getTypeData();
+});
 </script>

@@ -1,8 +1,8 @@
 <template>
-  <v-card color="white" theme="dark" class="card" min-width="445">
+  <v-card color="white" theme="dark" class="card" min-width="445" width="100%">
     <div class="d-flex flex-no-wrap">
       <v-avatar class="ma-3" size="125" rounded="0">
-        <v-img :src="getImageUrl(item.image)"></v-img>
+        <v-img v-if="item.image != null" :src="getImageUrl(item.image)"></v-img>
       </v-avatar>
       <div class="ml-5">
         <v-card-text class="text-h7 py-5">
@@ -18,6 +18,7 @@
               ></v-icon>
               &nbsp;
               <v-icon color="blue" icon="mdi mdi-label" size="large"></v-icon>
+              &nbsp;
             </div>
           </div>
           <div>
@@ -31,7 +32,7 @@
             >
           </div>
           <div class="text--primary">
-            分類：{{ item.type }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; UOM：{{
+            分類：{{ item.typeId }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; UOM：{{
               item.uom
             }}
           </div>
@@ -63,11 +64,11 @@ const getImageUrl = (name: string) => {
 
 <style>
 .card:hover {
-  transform: translateY(-15px); /* 让卡片稍微向上飘浮 */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5); /* 添加阴影效果 */
+  transform: translateY(-15px); /* 卡片向上漂浮 */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5); /* 陰影 */
 }
 
 .card:hover {
-  cursor: pointer; /* 鼠标悬停时显示手掌样式 */
+  cursor: pointer; /* 滑鼠停留時會有點擊特效 */
 }
 </style>

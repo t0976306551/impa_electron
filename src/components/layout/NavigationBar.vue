@@ -10,6 +10,12 @@
         v-model="conditionSearchStatus"
         @close="conditionSearchStatus = false"
       />
+
+      <MarkSettingDialog
+        v-model="markSettingStatus"
+        @close="markSettingStatus = false"
+      />
+
       <template v-slot:append>
         <v-btn
           variant="outlined"
@@ -20,7 +26,7 @@
         </v-btn>
         <v-btn
           variant="outlined"
-          @click="conditionSearchStatus = true"
+          @click="markSettingStatus = true"
           class="ml-3"
         >
           新增標籤
@@ -38,7 +44,7 @@
       permanent
       border="1"
       color="white"
-      width="320"
+      width="305"
       :elevation="2"
     >
       <v-list density="compact" nav class="pa-0">
@@ -62,7 +68,8 @@
 import { ref, computed, watch, onBeforeMount } from "vue";
 import type { Ref } from "vue";
 import { useRoute } from "vue-router";
-import ConditionSearchDialog from "../../components/ConditionSearchDialog.vue";
+import ConditionSearchDialog from "@/components/ConditionSearchDialog.vue";
+import MarkSettingDialog from "@/components/MarkSettingDialog.vue";
 import type { Type } from "@/model/type.interface";
 import { getTypeDatas } from "@/api/type";
 interface NavItem {
@@ -70,14 +77,12 @@ interface NavItem {
   url: string;
 }
 
-// const typeDatas: Ref<Type[]> = ref([]);
-
 const drawer = ref();
 const route = useRoute();
 const title = computed(() => route.meta.title);
 const currentUrl = computed(() => route.path);
 const conditionSearchStatus = ref(false);
-
+const markSettingStatus = ref(false);
 const navItems: Ref<NavItem[]> = ref([]);
 const handleDrawerClick = () => {
   drawer.value = !drawer.value;

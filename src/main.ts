@@ -10,13 +10,7 @@ import { ipcRenderer } from 'electron';
 import {createPinia} from 'pinia';
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate';
 
-// createApp(App)
-//   .use(vuetify)
-//   .use(router)
-//   .mount('#app')
-//   .$nextTick(() => {
-//     postMessage({ payload: 'removeLoading' }, '*')
-//   })
+
 const pinia = createPinia();
 pinia.use(piniaPluginPersistedstate);
 
@@ -28,7 +22,5 @@ if (import.meta.env.MODE === 'electron') {
 app.mount('#app').$nextTick(() => {
   // Send a message to the Electron main process
   postMessage({ payload: 'removeLoading' }, '*')
-  // if (import.meta.env.MODE === 'electron') {
-  //   ipcRenderer.send('some-message', { payload: 'removeLoading' }, '*');
-  // }
+
 });

@@ -3,8 +3,6 @@
     <v-row v-for="(item, index) in itemList" :key="index" class="pa-3">
       <ImpaListCard :item="item" :index="index"></ImpaListCard
     ></v-row>
-
-    {{ currentId }}
   </v-container>
 </template>
 <script setup lang="ts">
@@ -27,17 +25,17 @@ watch(
   (newId) => {
     // 在這裡更新 currentId 的值
     currentId.value = newId;
+    queryDatabase();
   }
 );
 
 const queryDatabase = async (): Promise<void> => {
   try {
-    console.log("id", currentId);
-
+    itemList.value = [];
     // Send IPC message to query the database
     const results = await ipcRenderer.invoke(
       "query-database",
-      "SELECT * FROM datas"
+      `SELECT * FROM datas WHERE typeId = ${currentId.value}`
     );
     if (results.length > 0) {
       results.forEach((itemValue: any) => {
@@ -45,9 +43,9 @@ const queryDatabase = async (): Promise<void> => {
           id: itemValue.id,
           code: itemValue.code,
           image: itemValue.image,
-          chineseName: itemValue.chinese_name,
-          englishName: itemValue.english_name,
-          typeId: itemValue.type,
+          chineseName: itemValue.chineseName,
+          englishName: itemValue.englishName,
+          typeId: itemValue.typeId,
           uom: itemValue.uom,
           mtmlUom: itemValue.mtmlUom,
           content: itemValue.content,

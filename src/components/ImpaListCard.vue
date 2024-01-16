@@ -4,7 +4,7 @@
       <v-avatar class="ma-3" size="125" rounded="0">
         <v-img v-if="item.image != null" :src="getImageUrl(item.image)"></v-img>
       </v-avatar>
-      <div class="ml-5">
+      <div class="ml-5" style="width: 100%">
         <v-card-text class="text-h7 py-5">
           <div style="display: flex; justify-content: space-between">
             <b>

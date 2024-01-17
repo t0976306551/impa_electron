@@ -1,15 +1,15 @@
 import { defineStore } from 'pinia';
-import type { Item } from '@/model/item.interface';
+import type { Item, ItemWhole } from '@/model/item.interface';
 
 export const useItemStore = defineStore('item', {
     persist: true,
     state: () => {
         return {
-            data: [] as Item[],
+            data: [] as ItemWhole[],
         };
     },
     actions: {
-        setItem(item: Item[]) {
+        setItem(item: ItemWhole[]) {
             this.data = item;
         },
         clearItem() {

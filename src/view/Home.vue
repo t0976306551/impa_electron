@@ -9,12 +9,14 @@
 import { ref, onMounted, onBeforeMount, watch } from "vue";
 import { useRoute } from "vue-router";
 import type { Ref } from "vue";
-import type { Item } from "@/model/item.interface";
+import type { Item, ItemWhole } from "@/model/item.interface";
 import ImpaListCard from "@/components/ImpaListCard.vue";
 import { ipcRenderer } from "electron";
+import { getImpaDataByTypeId } from "@/api/imap";
+
 const route = useRoute();
 const currentId = ref(route.params.id);
-const itemList: Ref<Item[]> = ref([]);
+const itemList: Ref<ItemWhole[]> = ref([]);
 
 onBeforeMount(async (): Promise<void> => {
   await queryDatabase();
@@ -32,28 +34,7 @@ watch(
 const queryDatabase = async (): Promise<void> => {
   try {
     itemList.value = [];
-    // Send IPC message to query the database
-    const results = await ipcRenderer.invoke(
-      "query-database",
-      `SELECT * FROM datas WHERE typeId = ${currentId.value}`
-    );
-    if (results.length > 0) {
-      results.forEach((itemValue: any) => {
-        let data: Item = {
-          id: itemValue.id,
-          code: itemValue.code,
-          image: itemValue.image,
-          chineseName: itemValue.chineseName,
-          englishName: itemValue.englishName,
-          typeId: itemValue.typeId,
-          uom: itemValue.uom,
-          mtmlUom: itemValue.mtmlUom,
-          content: itemValue.content,
-          storeStatus: itemValue.storeStatus,
-        };
-        itemList.value.push(data);
-      });
-    }
+    itemList.value = await getImpaDataByTypeId(currentId.value);
   } catch (error) {
     console.error("Database query error:", error);
   }

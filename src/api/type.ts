@@ -12,5 +12,5 @@ const getTypeDatas = async (): Promise<Type[]> => {
         return Promise.reject(error);
     }
 };
-  
+
 export { getTypeDatas };

@@ -5,20 +5,23 @@
         <v-img v-if="item.image != null" :src="getImageUrl(item.image)"></v-img>
       </v-avatar>
       <div class="ml-5" style="width: 100%">
-        <v-card-text class="text-h7 py-5">
+        <v-card-text class="text-h7 py-4">
           <div style="display: flex; justify-content: space-between">
             <b>
-              <p style="color: blue">IMPA Code：{{ item.code }}</p></b
+              <p style="color: blue">IMPA Code：{{ item.code }}</p>
+              <p style="color: blue">分類：{{ item.typeName }}</p></b
             >
-            <div>
-              <v-icon
-                color="red"
-                icon="mdi mdi-content-paste"
-                size="large"
-              ></v-icon>
-              &nbsp;
-              <v-icon color="blue" icon="mdi mdi-label" size="large"></v-icon>
-              &nbsp;
+
+            <div class="ml-2">
+              <v-btn
+                block
+                color="blue"
+                rounded="xl"
+                size="small"
+                variant="outlined"
+                @click="impaDetailStatus = true"
+                >詳細資訊</v-btn
+              >
             </div>
           </div>
           <div>
@@ -32,24 +35,32 @@
             >
           </div>
           <div class="text--primary">
-            分類：{{ item.typeId }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; UOM：{{
-              item.uom
-            }}
+            <b>UOM：</b>{{ item.uom }} &nbsp;&nbsp; <b>MTMLUOM：</b
+            >{{ item.mtmlUom }}
           </div>
-          <div class="text--primary">內容：{{ item.content }}</div>
+          <div class="text--primary"><b>內容：</b>{{ item.content }}</div>
         </v-card-text>
       </div>
     </div>
   </v-card>
+  <template>
+    <ImpaDetailsDialog
+      v-if="impaDetailStatus"
+      :item="item"
+      v-model="impaDetailStatus"
+      @close="impaDetailStatus = false"
+    />
+  </template>
 </template>
 <script lang="ts" setup>
 import { ref } from "vue";
 import type { Ref } from "vue";
 import type { PropType } from "vue";
-import type { Item } from "../model/item.interface";
+import type { Item, ItemWhole } from "../model/item.interface";
+import ImpaDetailsDialog from "@/components/ImpaDetailsDialog.vue";
 const props = defineProps({
   item: {
-    type: Object as PropType<Item>,
+    type: Object as PropType<ItemWhole>,
     required: true,
   },
   index: {
@@ -57,6 +68,8 @@ const props = defineProps({
     default: 0,
   },
 });
+const impaDetailStatus = ref(false);
+
 const getImageUrl = (name: string) => {
   return new URL(`../assets/images/${name}`, import.meta.url).href;
 };
@@ -66,9 +79,5 @@ const getImageUrl = (name: string) => {
 .card:hover {
   transform: translateY(-15px); /* 卡片向上漂浮 */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5); /* 陰影 */
-}
-
-.card:hover {
-  cursor: pointer; /* 滑鼠停留時會有點擊特效 */
 }
 </style>

@@ -98,8 +98,6 @@ const getTypeData = async () => {
         };
         navItems.value.push(data);
       });
-
-      console.log(navItems.value);
     })
     .catch((error) => {
       console.log(error);

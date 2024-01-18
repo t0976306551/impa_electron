@@ -41,11 +41,14 @@
                 v-for="(mark, index) in marks"
                 :key="index"
                 class="ma-2"
-                closable
                 variant="outlined"
-                @click:close="deleteMarkData(mark.id)"
               >
                 {{ mark.name }}
+                <v-icon
+                  class="ml-2 delete"
+                  icon="mdi mdi-close-circle"
+                  @click="deleteMarkData(mark.id)"
+                ></v-icon>
               </v-chip>
             </v-col>
           </v-row>
@@ -116,3 +119,9 @@ const close = () => {
   emit("close");
 };
 </script>
+
+<style>
+.delete:hover {
+  transform: translateY(-3px); /* 卡片向上漂浮 */
+}
+</style>

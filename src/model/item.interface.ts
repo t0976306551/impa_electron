@@ -26,7 +26,7 @@ export interface ItemWhole {
   image : string | null;
   typeId : number;
   typeName: string;
-  storeStatus : boolean;
+  storeStatus : number;
   marks?: Mark[] | null;
   remark:string|null;
 }

@@ -31,6 +31,9 @@
         >
           新增標籤
         </v-btn>
+        <v-btn variant="outlined" to="/0" link class="ml-3">
+          查看儲存資料
+        </v-btn>
         <!-- <v-btn v-if="!isLoggedIn" to="/login" color="primary" variant="flat"
           >登入</v-btn
         >

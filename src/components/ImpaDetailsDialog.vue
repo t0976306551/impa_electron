@@ -146,12 +146,16 @@ import {
   updateStoreStatus,
 } from "@/api/imap";
 import LoadingDialog from "@/components/Loading.vue";
-import { stat } from "original-fs";
-const emit = defineEmits(["close", "create"]);
+
+const emit = defineEmits(["close", "create", "updateStore"]);
 const props = defineProps({
   item: {
     type: Object as PropType<ItemWhole>,
     required: true,
+  },
+  currentId: {
+    type: String,
+    default: "",
   },
 });
 const loading = ref(false);
@@ -278,12 +282,20 @@ const updateDataStore = async (dataId: number, storeStatus: number) => {
       storeStatusText.value = "尚未儲存";
       storeBtnColor.value = "red";
     }
+    updateStoreEmit();
   }
   loading.value = false;
 };
 
 const close = () => {
   emit("close");
+};
+
+const updateStoreEmit = () => {
+  emit("updateStore");
+  if (props.currentId == "0") {
+    close();
+  }
 };
 </script>
 

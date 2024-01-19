@@ -6,7 +6,12 @@
       </v-btn>
     </v-row>
     <v-row v-for="(item, index) in itemList" :key="index" class="pa-3">
-      <ImpaListCard :item="item" :index="index"></ImpaListCard
+      <ImpaListCard
+        :item="item"
+        :index="index"
+        :current-id="currentId"
+        @update-store="judgeStoreUpdate"
+      ></ImpaListCard
     ></v-row>
     <LoadingDialog :dialog="loading"></LoadingDialog>
   </v-container>
@@ -23,7 +28,7 @@ import LoadingDialog from "@/components/Loading.vue";
 import * as XLSX from "xlsx";
 
 const route = useRoute();
-const currentId = ref(route.params.id);
+const currentId: any = ref(route.params.id);
 const itemList: Ref<ItemWhole[]> = ref([]);
 const loading = ref(false);
 onBeforeMount(async (): Promise<void> => {
@@ -54,7 +59,12 @@ const queryDatabase = async (): Promise<void> => {
   } catch (error) {
     console.error("Database query error:", error);
   }
-  // items.value = await ItemApi.getAllItem();
+};
+
+const judgeStoreUpdate = async () => {
+  if (currentId.value == "0") {
+    itemList.value = await getImpaDataByStore();
+  }
 };
 
 const exportToExcel = async (): Promise<void> => {

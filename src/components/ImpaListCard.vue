@@ -49,6 +49,8 @@
       :item="item"
       v-model="impaDetailStatus"
       @close="impaDetailStatus = false"
+      @update-store="updateStoreEmit"
+      :current-id="currentId"
     />
   </template>
 </template>
@@ -58,6 +60,7 @@ import type { Ref } from "vue";
 import type { PropType } from "vue";
 import type { Item, ItemWhole } from "../model/item.interface";
 import ImpaDetailsDialog from "@/components/ImpaDetailsDialog.vue";
+const emit = defineEmits(["updateStore"]);
 const props = defineProps({
   item: {
     type: Object as PropType<ItemWhole>,
@@ -67,11 +70,18 @@ const props = defineProps({
     type: Number,
     default: 0,
   },
+  currentId: {
+    type: String,
+    default: "",
+  },
 });
 const impaDetailStatus = ref(false);
 
 const getImageUrl = (name: string) => {
   return new URL(`../assets/images/${name}`, import.meta.url).href;
+};
+const updateStoreEmit = () => {
+  emit("updateStore");
 };
 </script>
 

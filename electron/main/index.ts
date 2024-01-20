@@ -122,9 +122,10 @@ ipcMain.handle('open-win', (_, arg) => {
   }
 })
 
-const dbPath = path.join('C:\\SQLite', 'impa.db'); // Adjust the path to your SQLite database file
+// const dbPath = path.join("C:/SQLite", 'impa.db');
+const filePath = path.resolve(app.getAppPath(), 'db', 'impa.db');
 
-const db = new sqlite3.Database(dbPath);
+const db = new sqlite3.Database(filePath);
 
 // Example query
 // db.serialize(() => {

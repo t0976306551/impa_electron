@@ -17,7 +17,7 @@
   </v-container>
 </template>
 <script setup lang="ts">
-import { ref, onMounted, onBeforeMount, watch } from "vue";
+import { ref, onMounted, onBeforeMount, watch, computed } from "vue";
 import { useRoute } from "vue-router";
 import type { Ref } from "vue";
 import type { Item, ItemWhole } from "@/model/item.interface";
@@ -26,11 +26,14 @@ import { ipcRenderer } from "electron";
 import { getImpaDataByTypeId, getImpaDataByStore } from "@/api/imap";
 import LoadingDialog from "@/components/Loading.vue";
 import * as XLSX from "xlsx";
-
+import { useItemStore } from "@/store/dataStore";
+import type { ComputedRef } from "vue";
 const route = useRoute();
 const currentId: any = ref(route.params.id);
 const itemList: Ref<ItemWhole[]> = ref([]);
 const loading = ref(false);
+const storeItem = useItemStore();
+const storeImpaItem: ComputedRef<ItemWhole[]> = computed(() => storeItem.data);
 onBeforeMount(async (): Promise<void> => {
   await queryDatabase();
 });
@@ -44,16 +47,28 @@ watch(
   }
 );
 
+watch(
+  () => storeImpaItem.value,
+  (newData) => {
+    // 更新 isDataEmpty 的值
+    if ((currentId.value = "00")) {
+      if (newData.length > 0) {
+        queryDatabase();
+      }
+    }
+  }
+);
+
 const queryDatabase = async (): Promise<void> => {
   try {
     loading.value = true;
     itemList.value = [];
-    if (currentId.value != "0") {
+    if (currentId.value != "0" && currentId.value != "00") {
       itemList.value = await getImpaDataByTypeId(currentId.value);
     } else if (currentId.value == "0") {
       itemList.value = await getImpaDataByStore();
     } else if (currentId.value == "00") {
-      console.log("我是條件搜尋");
+      itemList.value = storeImpaItem.value;
     }
     loading.value = false;
   } catch (error) {

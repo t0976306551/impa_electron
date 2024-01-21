@@ -32,12 +32,14 @@
           variant="outlined"
           v-model="searchData.englishName"
         ></v-text-field>
-
+        <v-row v-if="!dataisNull" justify="center" class="mt-2">
+          <p style="color: red">查無資料</p>
+        </v-row>
         <div style="text-align: right" class="mt-5">
           <v-btn variant="text" @click="close">
             <p style="color: black" class="font-weight-bold">取消</p></v-btn
           >
-          <v-btn variant="text" @click="test">
+          <v-btn variant="text" @click="searchImapData">
             <p style="color: #0065c1" class="font-weight-bold">確定</p></v-btn
           >
         </div>
@@ -50,16 +52,52 @@
 import { ref } from "vue";
 import type { Ref } from "vue";
 
+import { getImpaDataByCondition } from "@/api/imap";
 const emit = defineEmits(["close", "create"]);
+import { useItemStore } from "@/store/dataStore";
+import { useRouter } from "vue-router";
 
 const searchData = ref({
-  code: null,
-  chineseName: null,
-  englishName: null,
+  code: "",
+  chineseName: "",
+  englishName: "",
 });
 
-const test = () => {
-  console.log(searchData.value);
+const storeItem = useItemStore();
+const router = useRouter();
+
+const dataisNull = ref(true);
+
+const searchImapData = async () => {
+  dataisNull.value = true;
+  if (
+    searchData.value.code == "" &&
+    searchData.value.chineseName == "" &&
+    searchData.value.englishName == ""
+  ) {
+    dataisNull.value = false;
+  }
+
+  if (dataisNull.value) {
+    let data = await getImpaDataByCondition(
+      searchData.value.code,
+      searchData.value.chineseName,
+      searchData.value.englishName
+    );
+
+    if (typeof data != "boolean") {
+      if (data.length > 0) {
+        storeItem.setItem(data);
+        searchData.value.code = "";
+        searchData.value.chineseName = "";
+        searchData.value.englishName = "";
+        router.push("/00");
+        emit("close");
+      } else {
+        dataisNull.value = false;
+      }
+    }
+  }
 };
 
 // const createItem = () => {

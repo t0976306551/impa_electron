@@ -53,12 +53,37 @@ const getImpaDataByStore = async (): Promise<ItemWhole[]> => {
     }
 };
 
-const getImpaDataByCondition = async (): Promise<ItemWhole[]> => {
+const getImpaDataByCondition = async (code:string, chName:string, enName:string): Promise<ItemWhole[] | boolean> => {
     try {
-      const results:ItemWhole[] = await ipcRenderer.invoke(
-        "query-database",
-        "SELECT * FROM datas"
-      );
+        let query = "SELECT * FROM datas";
+        if(code == "" && chName == "" && enName == ""){
+            return false;
+        }
+        if(code!=""){
+            query+=` WHERE code LIKE '%${code}%'`;
+        }
+        if(chName!=""){
+            if(code==""){
+                query+=` WHERE chineseName LIKE '%${chName}%'`;
+            }else{
+                query+` AND chineseName LIKE '%${chName}%'`;
+            }
+        }
+        if(enName != ""){
+            if(code==""){
+                if(chName==""){
+                    query+=` WHERE chineseName LIKE '%${enName}%'`;
+                }
+            }else{
+                query+=` AND englishName LIKE '%${enName}%'`;
+            }
+        }
+      
+        
+        const results:ItemWhole[] = await ipcRenderer.invoke(
+            "query-database",
+            query
+        );
         return await results; 
     } catch (error) {
         return Promise.reject(error);

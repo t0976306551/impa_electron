@@ -75,6 +75,7 @@ import ConditionSearchDialog from "@/components/ConditionSearchDialog.vue";
 import MarkSettingDialog from "@/components/MarkSettingDialog.vue";
 import type { Type } from "@/model/type.interface";
 import { getTypeDatas } from "@/api/type";
+
 interface NavItem {
   title: string;
   url: string;

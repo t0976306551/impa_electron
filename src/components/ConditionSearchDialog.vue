@@ -32,6 +32,13 @@
           variant="outlined"
           v-model="searchData.englishName"
         ></v-text-field>
+
+        <v-text-field
+          label="備注搜尋"
+          variant="outlined"
+          v-model="searchData.remark"
+        ></v-text-field>
+
         <v-row v-if="!dataisNull" justify="center" class="mt-2">
           <p style="color: red">查無資料</p>
         </v-row>
@@ -55,15 +62,18 @@ import type { Ref } from "vue";
 import { getImpaDataByCondition } from "@/api/imap";
 const emit = defineEmits(["close", "create"]);
 import { useItemStore } from "@/store/dataStore";
+import { useSearchStore } from "@/store/searchData";
 import { useRouter } from "vue-router";
 
 const searchData = ref({
   code: "",
   chineseName: "",
   englishName: "",
+  remark: "",
 });
 
 const storeItem = useItemStore();
+const storeSearch = useSearchStore();
 const router = useRouter();
 
 const dataisNull = ref(true);
@@ -73,7 +83,8 @@ const searchImapData = async () => {
   if (
     searchData.value.code == "" &&
     searchData.value.chineseName == "" &&
-    searchData.value.englishName == ""
+    searchData.value.englishName == "" &&
+    searchData.value.remark == ""
   ) {
     dataisNull.value = false;
   }
@@ -82,15 +93,18 @@ const searchImapData = async () => {
     let data = await getImpaDataByCondition(
       searchData.value.code,
       searchData.value.chineseName,
-      searchData.value.englishName
+      searchData.value.englishName,
+      searchData.value.remark
     );
 
     if (typeof data != "boolean") {
       if (data.length > 0) {
         storeItem.setItem(data);
+        storeSearch.setSearchData(searchData.value);
         searchData.value.code = "";
         searchData.value.chineseName = "";
         searchData.value.englishName = "";
+        searchData.value.remark = "";
         router.push("/00");
         emit("close");
       } else {
@@ -99,12 +113,6 @@ const searchImapData = async () => {
     }
   }
 };
-
-// const createItem = () => {
-//   if (createItemData.value.name != "") {
-//     emit("create", createItemData.value);
-//   }
-// };
 
 const close = () => {
   emit("close");

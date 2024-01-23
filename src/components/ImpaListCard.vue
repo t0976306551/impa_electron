@@ -75,6 +75,12 @@ const props = defineProps({
     default: "",
   },
 });
+const detailColor = ref("");
+if (props.item.storeStatus == 0) {
+  detailColor.value = "red";
+} else {
+  detailColor.value = "green";
+}
 const impaDetailStatus = ref(false);
 
 const getImageUrl = (name: string) => {

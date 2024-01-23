@@ -53,10 +53,10 @@ const getImpaDataByStore = async (): Promise<ItemWhole[]> => {
     }
 };
 
-const getImpaDataByCondition = async (code:string, chName:string, enName:string): Promise<ItemWhole[] | boolean> => {
+const getImpaDataByCondition = async (code:string, chName:string, enName:string, remark:string): Promise<ItemWhole[] | boolean> => {
     try {
-        let query = "SELECT * FROM datas";
-        if(code == "" && chName == "" && enName == ""){
+        let query = "SELECT datas.*, type.name AS typeName FROM datas INNER JOIN type ON datas.typeId = type.id";
+        if(code == "" && chName == "" && enName == "" && remark == ""){
             return false;
         }
         if(code!=""){
@@ -72,18 +72,42 @@ const getImpaDataByCondition = async (code:string, chName:string, enName:string)
         if(enName != ""){
             if(code==""){
                 if(chName==""){
-                    query+=` WHERE chineseName LIKE '%${enName}%'`;
+                    query+=` WHERE englishName LIKE '%${enName}%'`;
                 }
             }else{
                 query+=` AND englishName LIKE '%${enName}%'`;
             }
         }
-      
         
+        if(remark != ""){
+            if(code==""){
+                if(chName==""){
+                    if(enName == ""){
+                        query+=` WHERE remark LIKE '%${remark}%'`;
+                    }
+                }
+            }else{
+                query+=` AND remark LIKE '%${remark}%'`;
+            }
+        }
+    
         const results:ItemWhole[] = await ipcRenderer.invoke(
             "query-database",
             query
         );
+
+        for (const result of results) {
+            const marks: Mark[] = await ipcRenderer.invoke(
+              "query-database",
+              `SELECT marks.* FROM marks `+
+              "INNER JOIN dataMarks ON marks.Id = dataMarks.markId "+
+              `WHERE dataMarks.dataId = ${result.id}`
+            );
+            if(marks.length > 0){
+                result.marks = marks;
+            }
+        }   
+
         return await results; 
     } catch (error) {
         return Promise.reject(error);

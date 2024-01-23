@@ -17,23 +17,31 @@
   </v-container>
 </template>
 <script setup lang="ts">
-import { ref, onMounted, onBeforeMount, watch, computed } from "vue";
+import { ref, onBeforeMount, watch, computed } from "vue";
 import { useRoute } from "vue-router";
-import type { Ref } from "vue";
-import type { Item, ItemWhole } from "@/model/item.interface";
+import type { Ref, ComputedRef } from "vue";
+import type { ItemWhole } from "@/model/item.interface";
+import type { Search } from "@/model/search.interface";
 import ImpaListCard from "@/components/ImpaListCard.vue";
-import { ipcRenderer } from "electron";
-import { getImpaDataByTypeId, getImpaDataByStore } from "@/api/imap";
+import {
+  getImpaDataByTypeId,
+  getImpaDataByStore,
+  getImpaDataByCondition,
+} from "@/api/imap";
 import LoadingDialog from "@/components/Loading.vue";
 import * as XLSX from "xlsx";
 import { useItemStore } from "@/store/dataStore";
-import type { ComputedRef } from "vue";
+import { useSearchStore } from "@/store/searchData";
+
 const route = useRoute();
 const currentId: any = ref(route.params.id);
 const itemList: Ref<ItemWhole[]> = ref([]);
 const loading = ref(false);
 const storeItem = useItemStore();
+const storeSearch = useSearchStore();
+
 const storeImpaItem: ComputedRef<ItemWhole[]> = computed(() => storeItem.data);
+
 onBeforeMount(async (): Promise<void> => {
   await queryDatabase();
 });
@@ -50,7 +58,6 @@ watch(
 watch(
   () => storeImpaItem.value,
   (newData) => {
-    // 更新 isDataEmpty 的值
     if ((currentId.value = "00")) {
       if (newData.length > 0) {
         queryDatabase();
@@ -79,6 +86,8 @@ const queryDatabase = async (): Promise<void> => {
 const judgeStoreUpdate = async () => {
   if (currentId.value == "0") {
     itemList.value = await getImpaDataByStore();
+  } else if (currentId.value !== "0" && currentId.value != "00") {
+    queryDatabase();
   }
 };
 
@@ -94,6 +103,7 @@ const exportToExcel = async (): Promise<void> => {
     備註: "",
     標籤: "",
   };
+  itemList.value = await getImpaDataByStore();
 
   for (const item of itemList.value) {
     dataObject = {

@@ -129,6 +129,7 @@
     <LoadingDialog :dialog="loading"></LoadingDialog>
   </v-dialog>
 </template>
+
 <script lang="ts" setup>
 import { ref, onBeforeMount } from "vue";
 import type { Ref } from "vue";

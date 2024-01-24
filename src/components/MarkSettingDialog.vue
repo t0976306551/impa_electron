@@ -73,7 +73,6 @@ const errorMessage = ref("");
 const marks: Ref<Mark[]> = ref([]);
 const name = ref("");
 const errorStatus = ref(false);
-const timer = ref(0);
 onBeforeMount(async (): Promise<void> => {
   await getMarks();
 });

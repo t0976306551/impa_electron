@@ -28,31 +28,26 @@
 </template>
 <script setup lang="ts">
 import { ref, onBeforeMount, watch, computed } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { useRoute } from "vue-router";
 import type { Ref, ComputedRef } from "vue";
 import type { ItemWhole } from "@/model/item.interface";
-import type { Search } from "@/model/search.interface";
 import ImpaListCard from "@/components/ImpaListCard.vue";
 import DeleteDialog from "@/components/DeleteDialog.vue";
 import {
   getImpaDataByTypeId,
   getImpaDataByStore,
-  getImpaDataByCondition,
   deleteAllStoreStatus,
 } from "@/api/imap";
 import LoadingDialog from "@/components/Loading.vue";
 import * as XLSX from "xlsx";
 import { useItemStore } from "@/store/dataStore";
-import { useSearchStore } from "@/store/searchData";
-import { dialog } from "electron";
 
 const route = useRoute();
 const currentId: any = ref(route.params.id);
 const itemList: Ref<ItemWhole[]> = ref([]);
 const loading = ref(false);
 const storeItem = useItemStore();
-const storeSearch = useSearchStore();
-const router = useRouter();
+
 const deleteDialogStatus = ref(false);
 const storeImpaItem: ComputedRef<ItemWhole[]> = computed(() => storeItem.data);
 

@@ -74,7 +74,7 @@
                 item-title="name"
                 item-value="id"
                 chips
-                label="Chips"
+                label="標籤"
                 multiple
               ></v-select>
             </v-col>

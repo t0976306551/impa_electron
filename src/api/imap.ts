@@ -53,49 +53,68 @@ const getImpaDataByStore = async (): Promise<ItemWhole[]> => {
     }
 };
 
-const getImpaDataByCondition = async (code:string, chName:string, enName:string, remark:string): Promise<ItemWhole[] | boolean> => {
+const getImpaDataByCondition = async (code:string, chName:string, enName:string, remark:string, markId:string): Promise<ItemWhole[] | boolean> => {
     try {
-        let query = "SELECT datas.*, type.name AS typeName FROM datas INNER JOIN type ON datas.typeId = type.id";
-        if(code == "" && chName == "" && enName == "" && remark == ""){
+        let query = "SELECT datas.*, type.name AS typeName FROM datas "+
+                    "INNER JOIN type ON datas.typeId = type.id";
+        if(code == "" && chName == "" && enName == "" && remark == "" && markId == ""){
             return false;
         }
         if(code!=""){
-            query+=` WHERE code LIKE '%${code}%'`;
+            query+=` WHERE datas.code LIKE '%${code}%'`;
         }
         if(chName!=""){
             if(code==""){
-                query+=` WHERE chineseName LIKE '%${chName}%'`;
+                query+=` WHERE datas.chineseName LIKE '%${chName}%'`;
             }else{
-                query+` AND chineseName LIKE '%${chName}%'`;
+                query+` AND datas.chineseName LIKE '%${chName}%'`;
             }
         }
         if(enName != ""){
             if(code==""){
                 if(chName==""){
-                    query+=` WHERE englishName LIKE '%${enName}%'`;
+                    query+=` WHERE datas.englishName LIKE '%${enName}%'`;
                 }
             }else{
-                query+=` AND englishName LIKE '%${enName}%'`;
+                query+=` AND datas.englishName LIKE '%${enName}%'`;
             }
         }
-        
         if(remark != ""){
             if(code==""){
                 if(chName==""){
                     if(enName == ""){
-                        query+=` WHERE remark LIKE '%${remark}%'`;
+                        query+=` WHERE datas.remark LIKE '%${remark}%'`;
                     }
                 }
             }else{
-                query+=` AND remark LIKE '%${remark}%'`;
+                query+=` AND datas.remark LIKE '%${remark}%'`;
+            }
+        }
+        let results = [];
+        if(code != "" || chName !="" ||  enName != "" || remark != ""){
+            results = await startQuery(query);
+        }
+      
+        if(markId != ""){   
+            if(remark == ""){
+                if(code==""){
+                    if(chName==""){
+                        if(enName == ""){
+                            if(results.length<1){
+                                query = "SELECT datas.*, type.name AS typeName FROM datas "+
+                                "INNER JOIN type ON datas.typeId = type.id " +
+                                "INNER JOIN dataMarks ON datas.id = dataMarks.dataId "+
+                                `WHERE dataMarks.markId = ${markId}`;
+                                results = await startQuery(query);
+                            }
+                        }
+                    }
+                }
+            }else{
+                query+=` AND dataMarks.markId = ${markId}`;
             }
         }
     
-        const results:ItemWhole[] = await ipcRenderer.invoke(
-            "query-database",
-            query
-        );
-
         for (const result of results) {
             const marks: Mark[] = await ipcRenderer.invoke(
               "query-database",
@@ -171,6 +190,38 @@ const updateStoreStatus = async(id:number, status:boolean) : Promise<boolean> =>
     }
 }
 
+const deleteAllStoreStatus = async() : Promise<boolean> => {
+    try{
+        const results = await ipcRenderer.invoke(
+            "query-database",
+            `UPDATE datas SET storeStatus = ${false}  WHERE storeStatus = ${true}`,
+          );
+        if(results){
+            return true;
+        }
+        return false;
+    }catch(error){
+        return Promise.reject(error);
+    }
+}
 
 
-export { getImpaDataByTypeId, getImpaDataByStore, getImpaDataByCondition, getImpaDataById, updateRemarkById, updateStoreStatus};
+
+const startQuery = async(query:string):Promise<any[]> => {
+    const results = await ipcRenderer.invoke(
+        "query-database",
+        query
+      );
+
+      return results;
+}
+
+export { 
+    getImpaDataByTypeId, 
+    getImpaDataByStore, 
+    getImpaDataByCondition, 
+    getImpaDataById, 
+    updateRemarkById, 
+    updateStoreStatus,
+    deleteAllStoreStatus
+};

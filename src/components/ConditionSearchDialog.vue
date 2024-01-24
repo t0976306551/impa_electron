@@ -39,6 +39,14 @@
           v-model="searchData.remark"
         ></v-text-field>
 
+        <v-select
+          v-model="searchData.mark"
+          :items="seleteMarks"
+          item-title="name"
+          item-value="id"
+          label="標籤搜尋"
+        ></v-select>
+
         <v-row v-if="!dataisNull" justify="center" class="mt-2">
           <p style="color: red">查無資料</p>
         </v-row>
@@ -56,20 +64,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onBeforeMount } from "vue";
 import type { Ref } from "vue";
-
 import { getImpaDataByCondition } from "@/api/imap";
 const emit = defineEmits(["close", "create"]);
 import { useItemStore } from "@/store/dataStore";
 import { useSearchStore } from "@/store/searchData";
 import { useRouter } from "vue-router";
-
+import type { Mark } from "../model/mark.interface";
+import { getAllMark } from "@/api/mark";
 const searchData = ref({
   code: "",
   chineseName: "",
   englishName: "",
   remark: "",
+  mark: "",
 });
 
 const storeItem = useItemStore();
@@ -78,13 +87,20 @@ const router = useRouter();
 
 const dataisNull = ref(true);
 
+const seleteMarks: Ref<Mark[]> = ref([]); //存放該資料沒有的標籤
+
+onBeforeMount(async (): Promise<void> => {
+  await getMarkData();
+});
+
 const searchImapData = async () => {
   dataisNull.value = true;
   if (
     searchData.value.code == "" &&
     searchData.value.chineseName == "" &&
     searchData.value.englishName == "" &&
-    searchData.value.remark == ""
+    searchData.value.remark == "" &&
+    searchData.value.mark == ""
   ) {
     dataisNull.value = false;
   }
@@ -94,7 +110,8 @@ const searchImapData = async () => {
       searchData.value.code,
       searchData.value.chineseName,
       searchData.value.englishName,
-      searchData.value.remark
+      searchData.value.remark,
+      searchData.value.mark
     );
 
     if (typeof data != "boolean") {
@@ -105,6 +122,7 @@ const searchImapData = async () => {
         searchData.value.chineseName = "";
         searchData.value.englishName = "";
         searchData.value.remark = "";
+        searchData.value.mark = "";
         router.push("/00");
         emit("close");
       } else {
@@ -112,6 +130,10 @@ const searchImapData = async () => {
       }
     }
   }
+};
+
+const getMarkData = async () => {
+  seleteMarks.value = await getAllMark();
 };
 
 const close = () => {

@@ -105,15 +105,6 @@ const deleteMarkData = async (id: number) => {
   }
 };
 
-// const errorMessageTimer = () => {
-//   errorStatus.value = true;
-//   errorMessage.value = "請檢查是否有重複的標籤名稱";
-//   setInterval(() => {
-//     errorStatus.value = false;
-//     errorMessage.value = "";
-//   }, 5000);
-// };
-
 const close = () => {
   name.value = "";
   emit("close");

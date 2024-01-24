@@ -1,10 +1,15 @@
 <template>
   <v-container fluid>
     <v-row justify="end" class="pa-3" v-if="currentId == '0'">
-      <v-btn variant="tonal" color="green" @click="exportToExcel">
+      <v-btn variant="tonal" class="mr-3" color="green" @click="exportToExcel">
         匯出成Excel檔案
       </v-btn>
+
+      <v-btn variant="tonal" color="red" @click="checkdeleteAllStore">
+        刪除全部以儲存資料
+      </v-btn>
     </v-row>
+
     <v-row v-for="(item, index) in itemList" :key="index" class="pa-3">
       <ImpaListCard
         :item="item"
@@ -14,24 +19,32 @@
       ></ImpaListCard
     ></v-row>
     <LoadingDialog :dialog="loading"></LoadingDialog>
+    <DeleteDialog
+      v-model="deleteDialogStatus"
+      @close="deleteDialogStatus = false"
+      @delete="deleteAllStore"
+    ></DeleteDialog>
   </v-container>
 </template>
 <script setup lang="ts">
 import { ref, onBeforeMount, watch, computed } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import type { Ref, ComputedRef } from "vue";
 import type { ItemWhole } from "@/model/item.interface";
 import type { Search } from "@/model/search.interface";
 import ImpaListCard from "@/components/ImpaListCard.vue";
+import DeleteDialog from "@/components/DeleteDialog.vue";
 import {
   getImpaDataByTypeId,
   getImpaDataByStore,
   getImpaDataByCondition,
+  deleteAllStoreStatus,
 } from "@/api/imap";
 import LoadingDialog from "@/components/Loading.vue";
 import * as XLSX from "xlsx";
 import { useItemStore } from "@/store/dataStore";
 import { useSearchStore } from "@/store/searchData";
+import { dialog } from "electron";
 
 const route = useRoute();
 const currentId: any = ref(route.params.id);
@@ -39,7 +52,8 @@ const itemList: Ref<ItemWhole[]> = ref([]);
 const loading = ref(false);
 const storeItem = useItemStore();
 const storeSearch = useSearchStore();
-
+const router = useRouter();
+const deleteDialogStatus = ref(false);
 const storeImpaItem: ComputedRef<ItemWhole[]> = computed(() => storeItem.data);
 
 onBeforeMount(async (): Promise<void> => {
@@ -89,6 +103,16 @@ const judgeStoreUpdate = async () => {
   } else if (currentId.value !== "0" && currentId.value != "00") {
     queryDatabase();
   }
+};
+
+const checkdeleteAllStore = async () => {
+  deleteDialogStatus.value = true;
+};
+
+const deleteAllStore = async () => {
+  await deleteAllStoreStatus();
+  deleteDialogStatus.value = false;
+  window.location.reload();
 };
 
 const exportToExcel = async (): Promise<void> => {

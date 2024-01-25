@@ -22,6 +22,7 @@
     artifactName: "${productName}-Mac-${version}-Installer.${ext}",
   },
   win: {
+    icon: "src/assets/impa_placeholder.ico",
     target: [
       {
         target: "nsis",

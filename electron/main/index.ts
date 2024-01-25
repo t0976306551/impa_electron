@@ -49,7 +49,9 @@ async function createWindow() {
     height: 600, 
     minWidth:800,
     title: 'Main window',
-    icon: join(process.env.VITE_PUBLIC, 'favicon.ico'),
+ 
+    
+    icon: join(process.env.VITE_PUBLIC, 'impa_placeholder.png'),
     webPreferences: {
       preload,
       // Warning: Enable nodeIntegration and disable contextIsolation is not secure in production

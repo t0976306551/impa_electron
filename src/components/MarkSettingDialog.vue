@@ -47,7 +47,7 @@
                 <v-icon
                   class="ml-2 delete"
                   icon="mdi mdi-close-circle"
-                  @click="deleteMarkData(mark.id)"
+                  @click="deleteMarkAction(mark.id)"
                 ></v-icon>
               </v-chip>
             </v-col>
@@ -60,6 +60,13 @@
         </div>
       </v-card-text>
     </v-card>
+
+    <DeleteDialog
+      v-model="deleteDialogStatus"
+      @close="deleteDialogStatus = false"
+      @delete="deleteMarkData(reDeleteid)"
+      content="請確認是否刪除標籤，如刪除會將所有該標籤的資料標籤一起刪除"
+    ></DeleteDialog>
   </v-dialog>
 </template>
 
@@ -67,12 +74,15 @@
 import { ref, onBeforeMount } from "vue";
 import type { Ref } from "vue";
 import { getAllMark, createMark, deleteMark, checkMark } from "@/api/mark";
+import DeleteDialog from "@/components/DeleteDialog.vue";
 import { Mark } from "@/model/mark.interface";
 const emit = defineEmits(["close", "create"]);
 const errorMessage = ref("");
 const marks: Ref<Mark[]> = ref([]);
 const name = ref("");
 const errorStatus = ref(false);
+const deleteDialogStatus = ref(false);
+const reDeleteid = ref(0);
 onBeforeMount(async (): Promise<void> => {
   await getMarks();
 });
@@ -97,9 +107,15 @@ const createMarkData = async () => {
   }
 };
 
+const deleteMarkAction = async (id: number) => {
+  deleteDialogStatus.value = true;
+  reDeleteid.value = id;
+};
+
 const deleteMarkData = async (id: number) => {
   if (id) {
     await deleteMark(id);
+    deleteDialogStatus.value = false;
     await getMarks();
   }
 };

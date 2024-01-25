@@ -30,6 +30,11 @@ const createMark = async(name:string):Promise<boolean> => {
 
 const deleteMark = async(id:number):Promise<boolean> => {
     try {
+
+        await ipcRenderer.invoke(
+            "query-database",
+            `DELETE FROM dataMarks WHERE markId = ${id}`
+        );
         const results = await ipcRenderer.invoke(
           "query-database",
           `DELETE FROM marks WHERE id = ${id}`

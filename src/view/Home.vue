@@ -1,13 +1,28 @@
 <template>
   <v-container fluid>
     <v-row justify="end" class="pa-3" v-if="currentId == '0'">
-      <v-btn variant="tonal" class="mr-3" color="green" @click="exportToExcel">
+      <v-btn
+        v-if="itemList.length > 0"
+        variant="tonal"
+        class="mr-3"
+        color="green"
+        @click="exportToExcel"
+      >
         匯出成Excel檔案
       </v-btn>
 
-      <v-btn variant="tonal" color="red" @click="checkdeleteAllStore">
+      <v-btn
+        v-if="itemList.length > 0"
+        variant="tonal"
+        color="red"
+        @click="checkdeleteAllStore"
+      >
         刪除全部以儲存資料
       </v-btn>
+    </v-row>
+
+    <v-row justify="center" class="pa-3" v-if="itemList.length < 1">
+      <p style="color: red">尚無已儲存資料</p>
     </v-row>
 
     <v-row v-for="(item, index) in itemList" :key="index" class="pa-3">
@@ -23,6 +38,7 @@
       v-model="deleteDialogStatus"
       @close="deleteDialogStatus = false"
       @delete="deleteAllStore"
+      content="確認是否要刪除全部儲存資料"
     ></DeleteDialog>
   </v-container>
 </template>

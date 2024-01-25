@@ -145,7 +145,7 @@ ipcMain.handle('query-database', async (event, query) => {
   return new Promise(async (resolve, reject) => {
     try {
       if (db) {
-        console.log('Database initialized.');
+        // console.log('Database initialized.');
         const rows = await new Promise((resolve, reject) => {
           db.all(query, (err, rows) => {
             if (err) {

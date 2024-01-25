@@ -15,7 +15,7 @@
       </v-toolbar>
 
       <v-card-text>
-        <v-row justify="center" class="mt-5 mb-5"> 請確認是否刪除 </v-row>
+        <v-row justify="center" class="mt-5 mb-5"> {{ props.content }} </v-row>
         <div style="text-align: right" class="mt-5">
           <v-btn variant="text" @click="close">
             <p style="color: black" class="font-weight-bold">關閉</p></v-btn
@@ -31,7 +31,12 @@
 
 <script setup lang="ts">
 const emit = defineEmits(["close", "delete"]);
-
+const props = defineProps({
+  content: {
+    type: String,
+    default: "",
+  },
+});
 const deleteStore = () => {
   emit("delete");
 };

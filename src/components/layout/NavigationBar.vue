@@ -6,15 +6,6 @@
           <span class="text-h5"> IMPA System </span>
         </div>
       </v-toolbar-title>
-      <ConditionSearchDialog
-        v-model="conditionSearchStatus"
-        @close="conditionSearchStatus = false"
-      />
-
-      <MarkSettingDialog
-        v-model="markSettingStatus"
-        @close="markSettingStatus = false"
-      />
 
       <template v-slot:append>
         <v-btn
@@ -42,6 +33,20 @@
         > -->
       </template>
     </v-app-bar>
+
+    <template>
+      <ConditionSearchDialog
+        v-model="conditionSearchStatus"
+        @close="conditionSearchStatus = false"
+        :status="conditionSearchStatus"
+      />
+    </template>
+    <template>
+      <MarkSettingDialog
+        v-model="markSettingStatus"
+        @close="markSettingStatus = false"
+      />
+    </template>
     <v-navigation-drawer
       v-model="drawer"
       permanent

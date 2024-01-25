@@ -64,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onBeforeMount } from "vue";
+import { ref, onBeforeMount, onMounted, onBeforeUnmount, watch } from "vue";
 import type { Ref } from "vue";
 import { getImpaDataByCondition } from "@/api/imap";
 const emit = defineEmits(["close", "create"]);
@@ -73,6 +73,17 @@ import { useSearchStore } from "@/store/searchData";
 import { useRouter } from "vue-router";
 import type { Mark } from "../model/mark.interface";
 import { getAllMark } from "@/api/mark";
+
+const props = defineProps({
+  status: {
+    type: Boolean,
+    default: false,
+  },
+});
+
+onMounted(async (): Promise<void> => {
+  await getMarkData();
+});
 const searchData = ref({
   code: "",
   chineseName: "",
@@ -81,6 +92,13 @@ const searchData = ref({
   mark: "",
 });
 
+watch(
+  () => props.status,
+  (newId) => {
+    getMarkData();
+  }
+);
+
 const storeItem = useItemStore();
 const storeSearch = useSearchStore();
 const router = useRouter();
@@ -88,10 +106,6 @@ const router = useRouter();
 const dataisNull = ref(true);
 
 const seleteMarks: Ref<Mark[]> = ref([]); //存放該資料沒有的標籤
-
-onBeforeMount(async (): Promise<void> => {
-  await getMarkData();
-});
 
 const searchImapData = async () => {
   dataisNull.value = true;
@@ -124,6 +138,7 @@ const searchImapData = async () => {
         searchData.value.remark = "";
         searchData.value.mark = "";
         router.push("/00");
+
         emit("close");
       } else {
         dataisNull.value = false;
@@ -136,7 +151,7 @@ const getMarkData = async () => {
   seleteMarks.value = await getAllMark();
 };
 
-const close = () => {
+const close = async () => {
   emit("close");
 };
 </script>

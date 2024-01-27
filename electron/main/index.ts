@@ -1,9 +1,11 @@
-import { app, BrowserWindow, shell, ipcMain } from 'electron'
+import { app, BrowserWindow, shell, ipcMain , dialog } from 'electron'
 import { release } from 'node:os'
 import { join } from 'node:path'
 import * as path from 'path';
 import sqlite3 from 'sqlite3';
-
+import * as os from 'os';
+import { ipcRenderer } from "electron";
+import { exec } from 'child_process';
 // The built directory structure
 //
 // ├─┬ dist-electron
@@ -83,7 +85,19 @@ async function createWindow() {
   // win.webContents.on('will-navigate', (event, url) => { }) #344
 }
 
-app.whenReady().then(createWindow)
+let dbSlot = ''
+if(app.isPackaged){
+  dbSlot = 'resources/';
+}
+
+const db = new sqlite3.Database(path.resolve(dbSlot+'db/impa.db'));
+
+
+app.whenReady().then(() => {
+  createWindow().then(() => {
+    getMacAddress();
+  });
+})
 
 app.on('window-all-closed', () => {
   win = null
@@ -103,7 +117,8 @@ app.on('activate', () => {
   if (allWindows.length) {
     allWindows[0].focus()
   } else {
-    createWindow()
+    createWindow();
+   
   }
 })
 
@@ -126,12 +141,7 @@ ipcMain.handle('open-win', (_, arg) => {
 
 // const dbPath = path.join("C:/SQLite", 'impa.db');
 // const filePath = path.resolve(app.getAppPath(), 'db', 'impa.db');
-let dbSlot = ''
-if(app.isPackaged){
-  dbSlot = 'resources/';
-}
 
-const db = new sqlite3.Database(path.resolve(dbSlot+'db/impa.db'));
 
 // const db = new sqlite3.Database(filePath);
 
@@ -168,3 +178,78 @@ ipcMain.handle('query-database', async (event, query) => {
     }
   });
 });
+
+
+const getMacAddress = async () => {
+  try {
+    const macAddresses:any = await new Promise((resolve, reject) => {
+      // 使用 child_process 的 exec 函數執行 getmac 命令
+      exec('getmac', (err, data) => {
+        if (err) {
+          reject(err);
+        } else {
+          const macRegex = /([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})/;
+          // 將 getmac 命令的輸出按行分割
+          const lines = data.split('\n');
+          // 選擇包含有效 MAC 地址的行
+          const validLines = lines.filter(line => macRegex.test(line));
+          // 提取每一行的 MAC 地址
+          const addresses = validLines.map(line => line.match(macRegex)[0]);
+          resolve(addresses);
+         
+        }
+      });
+    });
+
+    if (macAddresses.length > 0) {
+      const primaryMacAddress = macAddresses[0].trim();
+      try {
+        const results:any = await new Promise((resolve, reject) => {
+          db.all("SELECT * FROM hardwareInfo", (err, rows) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(rows);
+            }
+          });
+        });
+      
+        if (results.length < 1) {
+          await new Promise((resolve, reject) => {
+            db.all(`INSERT INTO hardwareInfo (info) VALUES ("${primaryMacAddress}")`, (err, rows) => {
+              if (err) {
+                reject(err);
+              } else {
+                resolve(rows);
+              }
+            });
+          });
+        }else if(results.length > 0){
+          const getMac:any = await new Promise((resolve, reject) => {
+            db.all(`SELECT * FROM hardwareInfo WHERE info = "${primaryMacAddress}"`, (err, rows) => {
+              if (err) {
+                reject(err);
+              } else {
+                resolve(rows);
+              }
+            });
+          });
+        
+          if(getMac.length < 1){
+            dialog.showErrorBox('錯誤', 'MAC 地址不正確，程式即將關閉。');
+            app.quit();
+          }
+
+        }
+      } catch (error) {
+        console.error("Error in query-database:", error);
+      }
+
+    } else {
+      console.error("No MAC addresses found.");
+    }
+  } catch (error) {
+    // 在這裡處理 `exec` 的錯誤
+    console.error("Error in getmac command:", error);
+  }
+};

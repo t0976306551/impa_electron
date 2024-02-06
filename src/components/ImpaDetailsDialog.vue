@@ -283,7 +283,7 @@ const updateDataStore = async (dataId: number, storeStatus: number) => {
       storeStatusText.value = "尚未儲存";
       storeBtnColor.value = "red";
     }
-    updateStoreEmit();
+    // updateStoreEmit();
   }
   loading.value = false;
 };

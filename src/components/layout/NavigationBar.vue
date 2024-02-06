@@ -105,7 +105,10 @@ const getTypeData = async () => {
           title: itemValue.name,
           url: "/" + itemValue.id,
         };
-        navItems.value.push(data);
+
+        if (itemValue.id != 35) {
+          navItems.value.push(data);
+        }
       });
     })
     .catch((error) => {

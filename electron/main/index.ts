@@ -95,7 +95,7 @@ const db = new sqlite3.Database(path.resolve(dbSlot+'db/impa.db'));
 
 app.whenReady().then(() => {
   createWindow().then(() => {
-    getMacAddress();
+    // getMacAddress();
   });
 })
 
